@@ -14,4 +14,6 @@ public interface UserStorage {
     void logout();
 
     String getToken();
+
+    String getUserId();
 }

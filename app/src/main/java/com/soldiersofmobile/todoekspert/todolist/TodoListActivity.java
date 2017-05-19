@@ -14,6 +14,8 @@ import com.soldiersofmobile.todoekspert.api.ErrorResponse;
 import com.soldiersofmobile.todoekspert.api.Todo;
 import com.soldiersofmobile.todoekspert.api.TodoApi;
 import com.soldiersofmobile.todoekspert.api.TodosResponse;
+import com.soldiersofmobile.todoekspert.db.DbHelper;
+import com.soldiersofmobile.todoekspert.db.TodoDao;
 import com.soldiersofmobile.todoekspert.login.LoginActivity;
 import com.soldiersofmobile.todoekspert.login.UserStorage;
 
@@ -36,6 +38,7 @@ public class TodoListActivity extends AppCompatActivity {
     private TodoApi todoApi;
     private Converter<ResponseBody, ErrorResponse> converter;
     private TodoAdapter adapter;
+    private TodoDao todoDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +60,8 @@ public class TodoListActivity extends AppCompatActivity {
         adapter = new TodoAdapter();
 
         list.setAdapter(adapter);
+
+        todoDao = new TodoDao(new DbHelper(this));
     }
 
     private void goToLogin() {
@@ -100,6 +105,7 @@ public class TodoListActivity extends AppCompatActivity {
                     adapter.addAll(body.results);
                     for (Todo todo : body.results) {
                         d(todo.toString());
+                        todoDao.insert(todo, userStorage.getUserId());
                     }
 
                 }

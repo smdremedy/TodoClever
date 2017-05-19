@@ -44,4 +44,9 @@ public class SharedPreferencesUserStorage implements UserStorage {
     public String getToken() {
         return preferences.getString(TOKEN, "");
     }
+
+    @Override
+    public String getUserId() {
+        return preferences.getString(USER_ID, "");
+    }
 }
