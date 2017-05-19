@@ -13,7 +13,6 @@ import retrofit2.http.Query;
 public interface TodoApi {
 
     @Headers({
-            "X-Parse-Application-Id: X7HiVehVO7Zg9ufo0qCDXVPI3z0bFpUXtyq2ezYL",
             "X-Parse-REST-API-Key: LCTpX53aBmbtIXOtFmDb9dklESKUd0q58hFbnRYc",
             "X-Parse-Revocable-Session: 1"
     })
@@ -22,7 +21,6 @@ public interface TodoApi {
                         @Query("password") String password);
 
     @Headers({
-            "X-Parse-Application-Id: X7HiVehVO7Zg9ufo0qCDXVPI3z0bFpUXtyq2ezYL",
             "X-Parse-REST-API-Key: LCTpX53aBmbtIXOtFmDb9dklESKUd0q58hFbnRYc"
     })
     @GET("/classes/Todo")

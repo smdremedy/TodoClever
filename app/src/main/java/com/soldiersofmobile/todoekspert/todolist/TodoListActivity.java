@@ -1,11 +1,15 @@
-package com.soldiersofmobile.todoekspert;
+package com.soldiersofmobile.todoekspert.todolist;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
+import com.soldiersofmobile.todoekspert.App;
+import com.soldiersofmobile.todoekspert.R;
 import com.soldiersofmobile.todoekspert.api.ErrorResponse;
 import com.soldiersofmobile.todoekspert.api.Todo;
 import com.soldiersofmobile.todoekspert.api.TodoApi;
@@ -13,20 +17,25 @@ import com.soldiersofmobile.todoekspert.api.TodosResponse;
 import com.soldiersofmobile.todoekspert.login.LoginActivity;
 import com.soldiersofmobile.todoekspert.login.UserStorage;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Converter;
 import retrofit2.Response;
-import timber.log.Timber;
 
-import static timber.log.Timber.*;
+import static timber.log.Timber.d;
+import static timber.log.Timber.e;
 
 public class TodoListActivity extends AppCompatActivity {
 
+    @BindView(R.id.list)
+    ListView list;
     private UserStorage userStorage;
     private TodoApi todoApi;
     private Converter<ResponseBody, ErrorResponse> converter;
+    private TodoAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +52,11 @@ public class TodoListActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_todo_list);
+        ButterKnife.bind(this);
 
+        adapter = new TodoAdapter();
+
+        list.setAdapter(adapter);
     }
 
     private void goToLogin() {
@@ -84,6 +97,7 @@ public class TodoListActivity extends AppCompatActivity {
 
                 if (response.isSuccessful()) {
                     TodosResponse body = response.body();
+                    adapter.addAll(body.results);
                     for (Todo todo : body.results) {
                         d(todo.toString());
                     }

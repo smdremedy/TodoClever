@@ -11,8 +11,13 @@ import com.soldiersofmobile.todoekspert.login.SharedPreferencesUserStorage;
 import com.soldiersofmobile.todoekspert.login.UserStorage;
 import com.squareup.leakcanary.LeakCanary;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
@@ -50,9 +55,25 @@ public class App extends Application {
                 = PreferenceManager.getDefaultSharedPreferences(this);
         userStorage = new SharedPreferencesUserStorage(preferences);
 
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request request = chain.request()
+                                .newBuilder()
+                                .addHeader("X-Parse-Application-Id",
+                                        "X7HiVehVO7Zg9ufo0qCDXVPI3z0bFpUXtyq2ezYL")
+                                .build();
+                        Response response = chain.proceed(request);
+                        return response;
+                    }
+                })
+                .build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://parseapi.back4app.com")
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
                 .build();
 
         todoApi = retrofit.create(TodoApi.class);

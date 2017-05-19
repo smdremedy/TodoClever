@@ -1,7 +1,6 @@
 package com.soldiersofmobile.todoekspert.login;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -12,7 +11,7 @@ import android.widget.Toast;
 
 import com.soldiersofmobile.todoekspert.App;
 import com.soldiersofmobile.todoekspert.R;
-import com.soldiersofmobile.todoekspert.TodoListActivity;
+import com.soldiersofmobile.todoekspert.todolist.TodoListActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

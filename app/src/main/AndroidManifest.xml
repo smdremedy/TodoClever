@@ -15,7 +15,7 @@
         <activity android:name=".login.LoginActivity" >
 
         </activity>
-        <activity android:name=".TodoListActivity">
+        <activity android:name=".todolist.TodoListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
