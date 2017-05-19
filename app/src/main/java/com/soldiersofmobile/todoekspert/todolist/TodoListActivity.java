@@ -1,12 +1,16 @@
 package com.soldiersofmobile.todoekspert.todolist;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 import com.soldiersofmobile.todoekspert.App;
 import com.soldiersofmobile.todoekspert.R;
@@ -32,12 +36,19 @@ import static timber.log.Timber.e;
 
 public class TodoListActivity extends AppCompatActivity {
 
+    private static final String[] FROM = {
+            TodoDao.C_CONTENT, TodoDao.C_DONE, TodoDao.C_ID
+    };
+    private static final int[] TO = {
+            R.id.item_checkbox, R.id.item_checkbox, R.id.item_button
+    };
     @BindView(R.id.list)
     ListView list;
     private UserStorage userStorage;
     private TodoApi todoApi;
     private Converter<ResponseBody, ErrorResponse> converter;
     private TodoAdapter adapter;
+    private SimpleCursorAdapter cursorAdapter;
     private TodoDao todoDao;
 
     @Override
@@ -57,11 +68,27 @@ public class TodoListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_todo_list);
         ButterKnife.bind(this);
 
-        adapter = new TodoAdapter();
-
-        list.setAdapter(adapter);
-
         todoDao = new TodoDao(new DbHelper(this));
+        adapter = new TodoAdapter();
+        Cursor cursor = todoDao.getTodosByUser(userStorage.getUserId());
+
+        cursorAdapter = new SimpleCursorAdapter(this, R.layout.item_todo, cursor,
+                FROM, TO, 0);
+        cursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                if (columnIndex == cursor.getColumnIndex(TodoDao.C_DONE)) {
+                    boolean done = cursor.getInt(columnIndex) > 0;
+                    CheckBox checkBox = (CheckBox) view;
+                    checkBox.setChecked(done);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        list.setAdapter(cursorAdapter);
+
     }
 
     private void goToLogin() {
@@ -109,6 +136,8 @@ public class TodoListActivity extends AppCompatActivity {
                     }
 
                 }
+                Cursor cursor = todoDao.getTodosByUser(userStorage.getUserId());
+                cursorAdapter.swapCursor(cursor);
             }
 
             @Override

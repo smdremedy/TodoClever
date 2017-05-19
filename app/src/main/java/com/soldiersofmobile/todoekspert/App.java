@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.facebook.stetho.Stetho;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.soldiersofmobile.todoekspert.api.ErrorResponse;
 import com.soldiersofmobile.todoekspert.api.TodoApi;
 import com.soldiersofmobile.todoekspert.login.LoginPresenter;
@@ -42,6 +44,8 @@ public class App extends Application {
 
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
+            Stetho.initializeWithDefaults(this);
+
         } else {
             Timber.plant(new Timber.Tree() {
                 @Override
@@ -50,6 +54,8 @@ public class App extends Application {
                 }
             });
         }
+
+
 
         SharedPreferences preferences
                 = PreferenceManager.getDefaultSharedPreferences(this);
@@ -68,6 +74,7 @@ public class App extends Application {
                         return response;
                     }
                 })
+                .addNetworkInterceptor(new StethoInterceptor())
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
