@@ -3,6 +3,8 @@
     package="com.soldiersofmobile.todoekspert">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.READ_SMS"/>
 
     <application
         android:name=".App"
@@ -12,7 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".login.LoginActivity" >
+        <activity android:name=".login.LoginActivity">
 
         </activity>
         <activity android:name=".todolist.TodoListActivity">
@@ -22,6 +24,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".RefreshIntentService" />
+        <receiver android:name=".SmsBroadcastReceiver"/>
     </application>
 
 </manifest>

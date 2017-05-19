@@ -8,6 +8,8 @@ import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.soldiersofmobile.todoekspert.api.ErrorResponse;
 import com.soldiersofmobile.todoekspert.api.TodoApi;
+import com.soldiersofmobile.todoekspert.db.DbHelper;
+import com.soldiersofmobile.todoekspert.db.TodoDao;
 import com.soldiersofmobile.todoekspert.login.LoginPresenter;
 import com.soldiersofmobile.todoekspert.login.SharedPreferencesUserStorage;
 import com.soldiersofmobile.todoekspert.login.UserStorage;
@@ -32,6 +34,11 @@ public class App extends Application {
     private UserStorage userStorage;
     private TodoApi todoApi;
     private Converter<ResponseBody, ErrorResponse> converter;
+    private TodoDao todoDao;
+
+    public TodoDao getTodoDao() {
+        return todoDao;
+    }
 
     public LoginPresenter getLoginPresenter() {
         return loginPresenter;
@@ -83,6 +90,7 @@ public class App extends Application {
                 .client(client)
                 .build();
 
+        todoDao = new TodoDao(new DbHelper(this));
         todoApi = retrofit.create(TodoApi.class);
         converter = retrofit.responseBodyConverter(ErrorResponse.class, new Annotation[]{});
 

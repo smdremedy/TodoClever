@@ -1,6 +1,9 @@
 package com.soldiersofmobile.todoekspert.todolist;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,9 +14,11 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 import com.soldiersofmobile.todoekspert.App;
 import com.soldiersofmobile.todoekspert.R;
+import com.soldiersofmobile.todoekspert.RefreshIntentService;
 import com.soldiersofmobile.todoekspert.api.ErrorResponse;
 import com.soldiersofmobile.todoekspert.api.Todo;
 import com.soldiersofmobile.todoekspert.api.TodoApi;
@@ -51,6 +56,30 @@ public class TodoListActivity extends AppCompatActivity {
     private SimpleCursorAdapter cursorAdapter;
     private TodoDao todoDao;
 
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            Cursor cursor = todoDao.getTodosByUser(userStorage.getUserId());
+            cursorAdapter.swapCursor(cursor);
+            Toast.makeText(context, "Refreshed!", Toast.LENGTH_SHORT).show();
+
+
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(receiver, new IntentFilter(RefreshIntentService.REFRESH_ACTION));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(receiver);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +88,7 @@ public class TodoListActivity extends AppCompatActivity {
         userStorage = application.getUserStorage();
         todoApi = application.getTodoApi();
         converter = application.getConverter();
+        todoDao = application.getTodoDao();
 
         if (!userStorage.isLoggedIn()) {
             goToLogin();
@@ -68,7 +98,7 @@ public class TodoListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_todo_list);
         ButterKnife.bind(this);
 
-        todoDao = new TodoDao(new DbHelper(this));
+
         adapter = new TodoAdapter();
         Cursor cursor = todoDao.getTodosByUser(userStorage.getUserId());
 
@@ -122,29 +152,10 @@ public class TodoListActivity extends AppCompatActivity {
     }
 
     private void refresh() {
-        Call<TodosResponse> call = todoApi.getTodos(userStorage.getToken());
-        call.enqueue(new Callback<TodosResponse>() {
-            @Override
-            public void onResponse(Call<TodosResponse> call, Response<TodosResponse> response) {
 
-                if (response.isSuccessful()) {
-                    TodosResponse body = response.body();
-                    adapter.addAll(body.results);
-                    for (Todo todo : body.results) {
-                        d(todo.toString());
-                        todoDao.insert(todo, userStorage.getUserId());
-                    }
+        Intent intent = new Intent(this, RefreshIntentService.class);
+        startService(intent);
 
-                }
-                Cursor cursor = todoDao.getTodosByUser(userStorage.getUserId());
-                cursorAdapter.swapCursor(cursor);
-            }
 
-            @Override
-            public void onFailure(Call<TodosResponse> call, Throwable t) {
-                e(t);
-
-            }
-        });
     }
 }
